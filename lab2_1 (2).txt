@@ -1,0 +1,470 @@
+set cut_paste_input [stack 0]
+version 13.1 v2
+BackdropNode {
+ inputs 0
+ name BackdropNode1
+ tile_color 0x71c67100
+ label "Validation Test"
+ note_font_size 42
+ selected true
+ xpos -3100
+ ypos 856
+ bdwidth 331
+ bdheight 299
+}
+BackdropNode {
+ inputs 0
+ name BackdropNode6
+ tile_color 0x71c67100
+ label "Validation Test"
+ note_font_size 42
+ selected true
+ xpos -2167
+ ypos 1092
+ bdwidth 331
+ bdheight 299
+}
+StickyNote {
+ inputs 0
+ name StickyNote5
+ label "The output must be green\nif the computation of the avg\nis correct for the golden image."
+ selected true
+ xpos -1996
+ ypos 1306
+}
+Read {
+ inputs 0
+ file_type exr
+ file C:/Users/zhuha/Desktop/goldenImage(1).exr
+ format "256 256 0 0 256 256 1 square_256"
+ origset true
+ name Read3
+ selected true
+ xpos -3369
+ ypos 773
+}
+BlinkScript {
+ recompileCount 7
+ ProgramGroup 1
+ KernelDescription "2 \"BoxFilterKernel\" iterate componentWise c9f8a58d4abfa504a1ac79020ca25493f62c72f4f3c72cd647d4454ab6d4125e 2 \"src\" Read Random \"dst\" Write Point 1 \"Box size\" Int 1 AAEAAA== 1 \"size\" 1 1 2 \"hSize\" Int 1 1 AAAAAA== \"normalisation\" Float 1 1 AAAAAA=="
+ kernelSource "kernel BoxFilterKernel : ImageComputationKernel<eComponentWise>\n\{\n Image<eRead, eAccessRandom, eEdgeClamped> src; // the input image\n Image<eWrite> dst; // the output image\n param:\n int size;\n local:\n int hSize; // half size\n float normalisation; // Number of pixels in the box\n // Defines user parameters\n void define() \{\n defineParam(size, \"Box size\", 256);\n \}\n void init() \{\n hSize = size / 2;\n normalisation = float(size * size);\n \}\n \n // pos gives the position of the kernel in the output image\n void process(int2 pos) \{\n // Read the input image\n float sum = 0;\n for(int k = 0; k <= size; k++) \{\n for(int l = 0; l <= size; l++) \{\n sum += src(pos.x + l, pos.y + k);\n \}\n \}\n // Write the result to the output image\n dst() = sum / normalisation;\n \}\n\};\n"
+ rebuild ""
+ format "256 256 0 0 256 256 1 new256"
+ specifiedFormat true
+ rebuild_finalise ""
+ name BlinkScript79
+ selected true
+ xpos -3369
+ ypos 902
+}
+set N82b86c00 [stack 0]
+BlinkScript {
+ recompileCount 5
+ ProgramGroup 1
+ KernelDescription "2 \"reduceKernel\" iterate componentWise f175d8e60d13dd42b57c3c7c03bddeb41b40f623d864e16e38d2b965c3f6702d 2 \"src\" Read Random \"dst\" Write Point 0 0 0"
+ kernelSource "kernel reduceKernel : ImageComputationKernel<eComponentWise>\n\{\n Image<eRead, eAccessRandom, eEdgeClamped> src; // the input image\n Image<eWrite> dst; // the output image\n void process(int2 pos) \{\n // Output position\n int x = pos.x;\n int y = pos.y;\n // Input position\n int xIn = 256*x;\n int yIn = 256*y;\n // Read the input image\n float input = src(xIn, yIn);\n // Write the result to the output image\n dst() = input;\n \}\n\};"
+ rebuild ""
+ format "1 1 0 0 1 1 1 new1"
+ specifiedFormat true
+ rebuild_finalise ""
+ name BlinkScript80
+ selected true
+ xpos -3292
+ ypos 968
+}
+set N82b86800 [stack 0]
+Dot {
+ name Dot10
+ label Input
+ note_font_size 32
+ note_font_color 0xff
+ selected true
+ xpos -2986
+ ypos 925
+}
+Reformat {
+ format "2048 1080 0 0 2048 1080 1 2K_DCP"
+ filter impulse
+ name Reformat2
+ selected true
+ xpos -3020
+ ypos 963
+}
+Group {
+ name checkKernel1
+ selected true
+ xpos -3020
+ ypos 1008
+ addUserKnob {20 checkKernel}
+ addUserKnob {41 "Local GPU: " T BlinkScript4.gpuName}
+ addUserKnob {41 "Use GPU if Available" T BlinkScript4.useGPUIfAvailable}
+ addUserKnob {26 ""}
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos -3100
+  ypos 1252
+ }
+ BlinkScript {
+  recompileCount 9
+  ProgramGroup 1
+  KernelDescription "2 \"checkKernel\" iterate pixelWise dbcaedd53032862306cf846fe83d493b3192e011217662159f486e7e2c839bcf 2 \"src\" Read Point \"dst\" Write Point 0 0 1 \"mu\" Float 4 1 AAAAAAAAAAAAAAAAAAAAAA=="
+  EncodedSource "1 680 yUR59vt7auTe9yVDGsfV3gdB6/9C2Q3qLY3097Dq+fKe1vrBxSjwQPi6gfZ3u71AeisF6AxWoPmFUlXrpSfEVA4AUPPBmAweN+uTegETo1vzz9gWJY//SbojsyX8MzLqfLxTW0oxBf10rtZ4EXCz8HnjDzm3cVFznaWbB7iu6AuTzNvLj+HwRqP4LyXmbQBKxIuMnSlvAl9wTj9Rxcv8o+yO2fbrpUA7B2M4b60WBOSwbAuHeSx50qOtTVvnsFDEs41bBp78MFQ054f8lpoPPzmS0FUi1CDXV96uOsosAYWr0W1S56bHvvm0HJMks4MPb4LDNGprQJdI9RpCfjwGBs/ofnfa/pn+Wo5JKyP3BjBndyCRhABkh2N4UtP+4klpjQhQlJjcv2eB/ZnRGOc48iUspqgXbkNkzCNpW/OlByVH8tQVsFr5IdEYkGB8rpr46AN3nP7trK+x2R46xwsttpq0fAmiTEV+MRGzokDKOvLuIPHUBvznOcAk0d/DPThOoCvLTdrHl9P6lOrP5YTBVszh7m8YKtj8/ErMAMxOGqUhAmmuwBVggA3WZcW73+tUz13RTIMvTvwt5DHiq/rCzcyLO+CsSP416mr+bRmdiVJU0EkEWLw77NPl0G5z4a5SVEr/y1fRoOPdXEM0By4XjmlikcKLxAujzpgJr0MmwTB8gy8yzqO3Uu+qxcHH3qknemnrj0zSkWSV4d33NbHlQO1M6f8POCyHFAr6uW4xcHhW7hKw3Z3XvM/rAFXZw2DxaTVlGo6frHQZ+j9bCWPghIxrIA/LO6u7U4XidUfUnwv4k0wL/ZkHt/nvJVGaQOXjkeFrTwVU8aaTgy+arF5q2gOQEAFSXUXE0mdZoR5e8BMmLHd2Sf5dmKbblKHchJyPWNKDyd+w9veLVWxLIf9enQ=="
+  rebuild ""
+  protectKernelWhenPublishing true
+  rebuild_finalise ""
+  name BlinkScript4
+  xpos -3100
+  ypos 1292
+ }
+ Output {
+  name Output1
+  xpos -3100
+  ypos 1392
+ }
+end_group
+PostageStamp {
+ name PostageStamp2
+ selected true
+ xpos -3020
+ ypos 1051
+ postage_stamp true
+}
+StickyNote {
+ inputs 0
+ name StickyNote1
+ label "The output must be green\nif the computation of the avg\nis correct for the golden image."
+ selected true
+ xpos -2929
+ ypos 1070
+}
+Read {
+ inputs 0
+ file_type exr
+ file C:/Users/zhuha/Desktop/goldenImage(1).exr
+ format "256 256 0 0 256 256 1 square_256"
+ origset true
+ name Read2
+ selected true
+ xpos -2566
+ ypos 598
+}
+set N82bf6c00 [stack 0]
+BlinkScript {
+ recompileCount 7
+ ProgramGroup 1
+ KernelDescription "2 \"reduceKernel\" iterate componentWise 881bfe3749955c03924e35ba880430e604be61b94d82171bcbc6e699559a0152 2 \"src\" Read Random \"dst\" Write Point 0 0 0"
+ kernelSource "kernel reduceKernel : ImageComputationKernel<eComponentWise>\n\{\n Image<eRead, eAccessRandom, eEdgeClamped> src; // the input image\n Image<eWrite> dst; // the output image\n void process(int2 pos) \{\n // Output position\n int x = pos.x;\n int y = pos.y;\n // Input position\n int xIn = 2*x + 1;\n int yIn = 2*y + 1;\n // Read the input image\n float input = src(xIn, yIn);\n // Write the result to the output image\n dst() = input;\n \}\n\};"
+ rebuild ""
+ format "128 128 0 0 128 128 1 new128"
+ specifiedFormat true
+ rebuild_finalise ""
+ name BlinkScript77
+ selected true
+ xpos -2291
+ ypos 746
+}
+BlinkScript {
+ recompileCount 2
+ ProgramGroup 1
+ KernelDescription "2 \"BoxFilterKernel\" iterate componentWise cec1cb529a49f309a56c86309822396b3b6044aa1b969b11a3724ccfb5651ff3 2 \"src\" Read Random \"dst\" Write Point 1 \"Box size\" Int 1 gAAAAA== 1 \"size\" 1 1 2 \"hSize\" Int 1 1 AAAAAA== \"normalisation\" Float 1 1 AAAAAA=="
+ kernelSource "kernel BoxFilterKernel : ImageComputationKernel<eComponentWise>\n\{\n Image<eRead, eAccessRandom, eEdgeClamped> src; // the input image\n Image<eWrite> dst; // the output image\n param:\n int size;\n local:\n int hSize; // half size\n float normalisation; // Number of pixels in the box\n // Defines user parameters\n void define() \{\n defineParam(size, \"Box size\", 128);\n \}\n void init() \{\n hSize = size / 2;\n normalisation = float(size * size);\n \}\n \n // pos gives the position of the kernel in the output image\n void process(int2 pos) \{\n // Read the input image\n float sum = 0;\n for(int k = 0; k <= size; k++) \{\n for(int l = 0; l <= size; l++) \{\n sum += src(pos.x + l, pos.y + k);\n \}\n \}\n // Write the result to the output image\n dst() = sum / normalisation;\n \}\n\};"
+ rebuild ""
+ rebuild_finalise ""
+ name BlinkScript83
+ selected true
+ xpos -2268
+ ypos 855
+}
+set N85b0bc00 [stack 0]
+push $N82bf6c00
+BlinkScript {
+ recompileCount 3
+ ProgramGroup 1
+ KernelDescription "2 \"reduceKernel\" iterate componentWise ef358aff8ab56dfec8f5723ab38d8059fed840cc029f6334aa7949d5a10db85a 2 \"src\" Read Random \"dst\" Write Point 0 0 0"
+ kernelSource "kernel reduceKernel : ImageComputationKernel<eComponentWise>\n\{\n Image<eRead, eAccessRandom, eEdgeClamped> src; // the input image\n Image<eWrite> dst; // the output image\n void process(int2 pos) \{\n // Output position\n int x = pos.x;\n int y = pos.y;\n // Input position\n int xIn = 2*x;\n int yIn = 2*y + 1;\n // Read the input image\n float input = src(xIn, yIn);\n // Write the result to the output image\n dst() = input;\n \}\n\};"
+ rebuild ""
+ format "128 128 0 0 128 128 1 new128"
+ specifiedFormat true
+ rebuild_finalise ""
+ name BlinkScript76
+ selected true
+ xpos -2426
+ ypos 740
+}
+BlinkScript {
+ recompileCount 3
+ ProgramGroup 1
+ KernelDescription "2 \"BoxFilterKernel\" iterate componentWise cec1cb529a49f309a56c86309822396b3b6044aa1b969b11a3724ccfb5651ff3 2 \"src\" Read Random \"dst\" Write Point 1 \"Box size\" Int 1 gAAAAA== 1 \"size\" 1 1 2 \"hSize\" Int 1 1 AAAAAA== \"normalisation\" Float 1 1 AAAAAA=="
+ kernelSource "kernel BoxFilterKernel : ImageComputationKernel<eComponentWise>\n\{\n Image<eRead, eAccessRandom, eEdgeClamped> src; // the input image\n Image<eWrite> dst; // the output image\n param:\n int size;\n local:\n int hSize; // half size\n float normalisation; // Number of pixels in the box\n // Defines user parameters\n void define() \{\n defineParam(size, \"Box size\", 128);\n \}\n void init() \{\n hSize = size / 2;\n normalisation = float(size * size);\n \}\n \n // pos gives the position of the kernel in the output image\n void process(int2 pos) \{\n // Read the input image\n float sum = 0;\n for(int k = 0; k <= size; k++) \{\n for(int l = 0; l <= size; l++) \{\n sum += src(pos.x + l, pos.y + k);\n \}\n \}\n // Write the result to the output image\n dst() = sum / normalisation;\n \}\n\};"
+ rebuild ""
+ rebuild_finalise ""
+ name BlinkScript82
+ selected true
+ xpos -2405
+ ypos 862
+}
+set N85ba8400 [stack 0]
+push 0
+push $N82bf6c00
+BlinkScript {
+ recompileCount 6
+ ProgramGroup 1
+ KernelDescription "2 \"reduceKernel\" iterate componentWise 206411de571c1ab3b8cd487eb619768b1c8fe7797c10c2491425b3a9d13fc968 2 \"src\" Read Random \"dst\" Write Point 0 0 0"
+ kernelSource "kernel reduceKernel : ImageComputationKernel<eComponentWise>\n\{\n Image<eRead, eAccessRandom, eEdgeClamped> src; // the input image\n Image<eWrite> dst; // the output image\n void process(int2 pos) \{\n // Output position\n int x = pos.x;\n int y = pos.y;\n // Input position\n int xIn = 2*x;\n int yIn = 2*y;\n // Read the input image\n float input = src(xIn, yIn);\n // Write the result to the output image\n dst() = input;\n \}\n\};"
+ rebuild ""
+ format "128 128 0 0 128 128 1 new128"
+ specifiedFormat true
+ rebuild_finalise ""
+ name BlinkScript74
+ selected true
+ xpos -2716
+ ypos 738
+}
+BlinkScript {
+ recompileCount 2
+ ProgramGroup 1
+ KernelDescription "2 \"BoxFilterKernel\" iterate componentWise cec1cb529a49f309a56c86309822396b3b6044aa1b969b11a3724ccfb5651ff3 2 \"src\" Read Random \"dst\" Write Point 1 \"Box size\" Int 1 gAAAAA== 1 \"size\" 1 1 2 \"hSize\" Int 1 1 AAAAAA== \"normalisation\" Float 1 1 AAAAAA=="
+ kernelSource "kernel BoxFilterKernel : ImageComputationKernel<eComponentWise>\n\{\n Image<eRead, eAccessRandom, eEdgeClamped> src; // the input image\n Image<eWrite> dst; // the output image\n param:\n int size;\n local:\n int hSize; // half size\n float normalisation; // Number of pixels in the box\n // Defines user parameters\n void define() \{\n defineParam(size, \"Box size\", 128);\n \}\n void init() \{\n hSize = size / 2;\n normalisation = float(size * size);\n \}\n \n // pos gives the position of the kernel in the output image\n void process(int2 pos) \{\n // Read the input image\n float sum = 0;\n for(int k = 0; k <= size; k++) \{\n for(int l = 0; l <= size; l++) \{\n sum += src(pos.x + l, pos.y + k);\n \}\n \}\n // Write the result to the output image\n dst() = sum / normalisation;\n \}\n\};"
+ rebuild ""
+ rebuild_finalise ""
+ name BlinkScript78
+ selected true
+ xpos -2740
+ ypos 848
+}
+set N82b85c00 [stack 0]
+push $N82bf6c00
+BlinkScript {
+ recompileCount 4
+ ProgramGroup 1
+ KernelDescription "2 \"reduceKernel\" iterate componentWise bd75e046d57bccffc831b49140f4a2e58924af26a3ef3b4c0e6b5cdf07a21fa9 2 \"src\" Read Random \"dst\" Write Point 0 0 0"
+ kernelSource "kernel reduceKernel : ImageComputationKernel<eComponentWise>\n\{\n Image<eRead, eAccessRandom, eEdgeClamped> src; // the input image\n Image<eWrite> dst; // the output image\n void process(int2 pos) \{\n // Output position\n int x = pos.x;\n int y = pos.y;\n // Input position\n int xIn = 2*x + 1;\n int yIn = 2*y;\n // Read the input image\n float input = src(xIn, yIn);\n // Write the result to the output image\n dst() = input;\n \}\n\};"
+ rebuild ""
+ format "128 128 0 0 128 128 1 new128"
+ specifiedFormat true
+ rebuild_finalise ""
+ name BlinkScript75
+ selected true
+ xpos -2559
+ ypos 745
+}
+BlinkScript {
+ recompileCount 3
+ ProgramGroup 1
+ KernelDescription "2 \"BoxFilterKernel\" iterate componentWise cec1cb529a49f309a56c86309822396b3b6044aa1b969b11a3724ccfb5651ff3 2 \"src\" Read Random \"dst\" Write Point 1 \"Box size\" Int 1 gAAAAA== 1 \"size\" 1 1 2 \"hSize\" Int 1 1 AAAAAA== \"normalisation\" Float 1 1 AAAAAA=="
+ kernelSource "kernel BoxFilterKernel : ImageComputationKernel<eComponentWise>\n\{\n Image<eRead, eAccessRandom, eEdgeClamped> src; // the input image\n Image<eWrite> dst; // the output image\n param:\n int size;\n local:\n int hSize; // half size\n float normalisation; // Number of pixels in the box\n // Defines user parameters\n void define() \{\n defineParam(size, \"Box size\", 128);\n \}\n void init() \{\n hSize = size / 2;\n normalisation = float(size * size);\n \}\n \n // pos gives the position of the kernel in the output image\n void process(int2 pos) \{\n // Read the input image\n float sum = 0;\n for(int k = 0; k <= size; k++) \{\n for(int l = 0; l <= size; l++) \{\n sum += src(pos.x + l, pos.y + k);\n \}\n \}\n // Write the result to the output image\n dst() = sum / normalisation;\n \}\n\};"
+ rebuild ""
+ rebuild_finalise ""
+ name BlinkScript81
+ selected true
+ xpos -2568
+ ypos 851
+}
+set N85ba8800 [stack 0]
+Merge2 {
+ inputs 4+1
+ operation plus
+ name Merge1
+ selected true
+ xpos -2517
+ ypos 981
+}
+set N85b0a800 [stack 0]
+Expression {
+ expr0 "r / 4.0"
+ expr1 g/4.0
+ expr2 b/4.0
+ expr3 1
+ name Expression1
+ selected true
+ xpos -2292
+ ypos 1008
+}
+set N856dac00 [stack 0]
+BlinkScript {
+ recompileCount 8
+ ProgramGroup 1
+ KernelDescription "2 \"reduceKernel\" iterate componentWise 669d76261f0a6811443a841f74e74cb4f84842f1156c23626a2ba6ce2b24366c 2 \"src\" Read Random \"dst\" Write Point 0 0 0"
+ kernelSource "kernel reduceKernel : ImageComputationKernel<eComponentWise>\n\{\n Image<eRead, eAccessRandom, eEdgeClamped> src; // the input image\n Image<eWrite> dst; // the output image\n void process(int2 pos) \{\n // Output position\n int x = pos.x;\n int y = pos.y;\n // Input position\n int xIn = 128*x;\n int yIn = 128*y;\n // Read the input image\n float input = src(xIn, yIn);\n // Write the result to the output image\n dst() = input;\n \}\n\};"
+ rebuild ""
+ format "1 1 0 0 1 1 1 new1"
+ specifiedFormat true
+ rebuild_finalise ""
+ name BlinkScript86
+ selected true
+ xpos -2063
+ ypos 1002
+}
+set N85662400 [stack 0]
+Dot {
+ name Dot1
+ label Input
+ note_font_size 32
+ note_font_color 0xff
+ selected true
+ xpos -2053
+ ypos 1161
+}
+Reformat {
+ format "2048 1080 0 0 2048 1080 1 2K_DCP"
+ filter impulse
+ name Reformat1
+ selected true
+ xpos -2087
+ ypos 1199
+}
+Group {
+ name checkKernel3
+ selected true
+ xpos -2087
+ ypos 1244
+ addUserKnob {20 checkKernel}
+ addUserKnob {41 "Local GPU: " T BlinkScript4.gpuName}
+ addUserKnob {41 "Use GPU if Available" T BlinkScript4.useGPUIfAvailable}
+ addUserKnob {26 ""}
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos -3100
+  ypos 1252
+ }
+ BlinkScript {
+  recompileCount 9
+  ProgramGroup 1
+  KernelDescription "2 \"checkKernel\" iterate pixelWise dbcaedd53032862306cf846fe83d493b3192e011217662159f486e7e2c839bcf 2 \"src\" Read Point \"dst\" Write Point 0 0 1 \"mu\" Float 4 1 AAAAAAAAAAAAAAAAAAAAAA=="
+  EncodedSource "1 680 yUR59vt7auTe9yVDGsfV3gdB6/9C2Q3qLY3097Dq+fKe1vrBxSjwQPi6gfZ3u71AeisF6AxWoPmFUlXrpSfEVA4AUPPBmAweN+uTegETo1vzz9gWJY//SbojsyX8MzLqfLxTW0oxBf10rtZ4EXCz8HnjDzm3cVFznaWbB7iu6AuTzNvLj+HwRqP4LyXmbQBKxIuMnSlvAl9wTj9Rxcv8o+yO2fbrpUA7B2M4b60WBOSwbAuHeSx50qOtTVvnsFDEs41bBp78MFQ054f8lpoPPzmS0FUi1CDXV96uOsosAYWr0W1S56bHvvm0HJMks4MPb4LDNGprQJdI9RpCfjwGBs/ofnfa/pn+Wo5JKyP3BjBndyCRhABkh2N4UtP+4klpjQhQlJjcv2eB/ZnRGOc48iUspqgXbkNkzCNpW/OlByVH8tQVsFr5IdEYkGB8rpr46AN3nP7trK+x2R46xwsttpq0fAmiTEV+MRGzokDKOvLuIPHUBvznOcAk0d/DPThOoCvLTdrHl9P6lOrP5YTBVszh7m8YKtj8/ErMAMxOGqUhAmmuwBVggA3WZcW73+tUz13RTIMvTvwt5DHiq/rCzcyLO+CsSP416mr+bRmdiVJU0EkEWLw77NPl0G5z4a5SVEr/y1fRoOPdXEM0By4XjmlikcKLxAujzpgJr0MmwTB8gy8yzqO3Uu+qxcHH3qknemnrj0zSkWSV4d33NbHlQO1M6f8POCyHFAr6uW4xcHhW7hKw3Z3XvM/rAFXZw2DxaTVlGo6frHQZ+j9bCWPghIxrIA/LO6u7U4XidUfUnwv4k0wL/ZkHt/nvJVGaQOXjkeFrTwVU8aaTgy+arF5q2gOQEAFSXUXE0mdZoR5e8BMmLHd2Sf5dmKbblKHchJyPWNKDyd+w9veLVWxLIf9enQ=="
+  rebuild ""
+  protectKernelWhenPublishing true
+  rebuild_finalise ""
+  name BlinkScript4
+  xpos -3100
+  ypos 1292
+ }
+ Output {
+  name Output1
+  xpos -3100
+  ypos 1392
+ }
+end_group
+PostageStamp {
+ name PostageStamp1
+ selected true
+ xpos -2087
+ ypos 1287
+ postage_stamp true
+}
+push $N85662400
+push $N82b86800
+Viewer {
+ inputs 2
+ frame_range 1-100
+ name Viewer7
+ selected true
+ xpos -2751
+ ypos 1387
+}
+push $cut_paste_input
+Viewer {
+ frame_range 1-100
+ name Viewer9
+ selected true
+ xpos -1972
+ ypos 815
+}
+push $N85b0bc00
+push $N85ba8400
+push $N85ba8800
+push $N82b85c00
+Viewer {
+ inputs 4
+ frame_range 1-100
+ input_number 2
+ name Viewer5
+ selected true
+ xpos -2705
+ ypos 953
+}
+push $N82b86800
+push $N85b0a800
+Viewer {
+ inputs 2
+ frame_range 1-100
+ input_number 1
+ name Viewer4
+ selected true
+ xpos -2707
+ ypos 1198
+}
+push $N856dac00
+push $N82b86800
+push $N82b86c00
+Viewer {
+ inputs 3
+ frame_range 1-100
+ name Viewer6
+ selected true
+ xpos -2758
+ ypos 1128
+}
+push $N82b86c00
+push $N82b86800
+Viewer {
+ inputs 2
+ frame_range 1-100
+ name Viewer2
+ selected true
+ xpos -3371
+ ypos 1065
+}
+push $N85662400
+Viewer {
+ frame_range 1-100
+ name Viewer3
+ selected true
+ xpos -2401
+ ypos 1299
+}
+push $N85b0a800
+BlinkScript {
+ recompileCount 20
+ ProgramGroup 1
+ KernelDescription "2 \"BoxFilterKernel\" iterate componentWise cec1cb529a49f309a56c86309822396b3b6044aa1b969b11a3724ccfb5651ff3 2 \"src\" Read Random \"dst\" Write Point 1 \"Box size\" Int 1 gAAAAA== 1 \"size\" 1 1 2 \"hSize\" Int 1 1 AAAAAA== \"normalisation\" Float 1 1 AAAAAA=="
+ kernelSource "kernel BoxFilterKernel : ImageComputationKernel<eComponentWise>\n\{\n Image<eRead, eAccessRandom, eEdgeClamped> src; // the input image\n Image<eWrite> dst; // the output image\n param:\n int size;\n local:\n int hSize; // half size\n float normalisation; // Number of pixels in the box\n // Defines user parameters\n void define() \{\n defineParam(size, \"Box size\", 128);\n \}\n void init() \{\n hSize = size / 2;\n normalisation = float(size * size);\n \}\n \n // pos gives the position of the kernel in the output image\n void process(int2 pos) \{\n // Read the input image\n float sum = 0;\n for(int k = 0; k <= size; k++) \{\n for(int l = 0; l <= size; l++) \{\n sum += src(pos.x + l, pos.y + k);\n \}\n \}\n // Write the result to the output image\n dst() = sum / normalisation;\n \}\n\};"
+ rebuild ""
+ rebuild_finalise ""
+ name BlinkScript84
+ selected true
+ xpos -2497
+ ypos 1079
+}
+Expression {
+ expr3 1
+ name Expression2
+ selected true
+ xpos -2497
+ ypos 1131
+}
+BlinkScript {
+ recompileCount 16
+ ProgramGroup 1
+ KernelDescription "2 \"reduceKernel\" iterate componentWise 669d76261f0a6811443a841f74e74cb4f84842f1156c23626a2ba6ce2b24366c 2 \"src\" Read Random \"dst\" Write Point 0 0 0"
+ kernelSource "kernel reduceKernel : ImageComputationKernel<eComponentWise>\n\{\n Image<eRead, eAccessRandom, eEdgeClamped> src; // the input image\n Image<eWrite> dst; // the output image\n void process(int2 pos) \{\n // Output position\n int x = pos.x;\n int y = pos.y;\n // Input position\n int xIn = 128*x;\n int yIn = 128*y;\n // Read the input image\n float input = src(xIn, yIn);\n // Write the result to the output image\n dst() = input;\n \}\n\};"
+ rebuild ""
+ format "1 1 0 0 1 1 1 new1"
+ specifiedFormat true
+ rebuild_finalise ""
+ name BlinkScript85
+ selected true
+ xpos -2497
+ ypos 1178
+}
+Viewer {
+ frame_range 1-100
+ name Viewer8
+ selected true
+ xpos -2700
+ ypos 1274
+}
